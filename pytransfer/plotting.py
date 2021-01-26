@@ -18,9 +18,8 @@ import matplotlib.pyplot as plt
 from matplotlib import patches, rc
 from tqdm import tqdm
 
-from ..transfer_operator import TransferOperator
-from ..networks import ContinuousNN
-from ..utils import *
+from pynamics.utils import *
+from .transfer_operator import TransferOperator
 
 plt.rc('text', usetex=True)
 
@@ -75,60 +74,6 @@ def plot_t_imp_scaling(
     plt.title("Scaling of $t$ with $\\tau$ and $n_p$")
     plt.legend()
     plt.show()
-
-
-def plot_with_g(gs: Sequence,
-                measure: Callable[[np.ndarray, ContinuousNN], float],
-                n_dofs: int = 100,
-                timestep: float = 0.1,
-                n_steps: int = 10000,
-                n_burn_in: int = 1000,
-                t_ons: int = 10,
-                normalize: bool = False,
-                network_seed: int = 123):
-    """
-    A helper function for plotting measurements across ranges of
-    coupling strength values.
-
-    :param gs: The list of coupling strengths at which to measure sample trajectories.
-    :param measure: A function which takes a generated trajectory and
-        the Trajectory object that generated it, and computes a
-        measurement on it.
-    :param n_dofs: The number of elements (neurons).
-    :param timestep: The discretization timestep.
-    :param n_steps: How many timesteps to simulate for each
-        coupling_strength.
-    :param n_burn_in: How many burnin timesteps to simulate before
-        starting to record.
-    :param normalize: Whether or not to divide the measurement result
-        by n_dofs.
-    :param network_seed: The random seed to use when drawing coupling
-        matrices.  Setting this ensures that the networks at different
-        sizes differ only in the coupling strength and not in the
-        normalized network topologies.  This lets us compare similar
-        networks.
-    """
-
-    measurements = np.zeros(len(gs))
-
-    for i, g in enumerate(gs):
-        # 1. Initialize a network
-        cont_nn = ContinuousNN(coupling_strength=g,
-                               n_dofs=n_dofs,
-                               timestep=timestep,
-                               network_seed=network_seed)
-
-        # 2. Simulate a phase space trajectory
-        trajectory = cont_nn.run(n_steps=n_steps, n_burn_in=n_burn_in)
-
-        # 3. Perform your measurement
-        measurements[i] = measure(trajectory, cont_nn)
-
-        # (4.) Potentially normalize
-        if normalize:
-            measurements[i] = measurements[i] / n_dofs
-
-    plt.plot(gs, measurements)
 
 
 def plot_max_l_with_g(gs: Sequence, t_ons: int = 10, **kwargs):

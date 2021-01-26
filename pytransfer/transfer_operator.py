@@ -19,10 +19,9 @@ from sklearn.cluster import KMeans
 from tqdm.notebook import tqdm
 from tqdm.contrib import tenumerate
 
-from .trajectories import TimeSeries
-from .utils import eigsort, normalize_rows, svd_whiten
+from pynamics.utils import eigsort, normalize_rows, svd_whiten
+from pynamics.trajectories import TimeSeries
 from .labeling import LabelingMethod, Uniform
-
 
 class TransferOperator:
     """
